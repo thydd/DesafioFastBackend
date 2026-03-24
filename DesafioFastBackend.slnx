@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DesafioFastBackend.API/DesafioFastBackend.API.csproj" />
+    <Project Path="src/DesafioFastBackend.Application/DesafioFastBackend.Application.csproj" />
+    <Project Path="src/DesafioFastBackend.Domain/DesafioFastBackend.Domain.csproj" />
+    <Project Path="src/DesafioFastBackend.Infrastructure/DesafioFastBackend.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
