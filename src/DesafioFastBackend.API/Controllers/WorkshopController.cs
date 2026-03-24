@@ -5,6 +5,7 @@ using DesafioFastBackend.Application.UseCases.Workshops.Dtos;
 using DesafioFastBackend.Application.UseCases.Workshops.GetById;
 using DesafioFastBackend.Application.UseCases.Workshops.List;
 using DesafioFastBackend.Application.UseCases.Workshops.Update;
+using DesafioFastBackend.API.Contracts;
 
 namespace DesafioFastBackend.API.Controllers
 {
@@ -18,33 +19,54 @@ namespace DesafioFastBackend.API.Controllers
         IDeleteWorkshopUseCase deleteWorkshopUseCase) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WorkshopOutputDto>>> GetAllAsync()
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<WorkshopOutputDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<IEnumerable<WorkshopOutputDto>>>> GetAllAsync()
         {
             var output = await listWorkshopsUseCase.ExecuteAsync(new ListWorkshopsInputDto());
-            return Ok(output);
+            if (!output.Any())
+            {
+                return NoContent();
+            }
+
+            return Ok(ApiResponse<IEnumerable<WorkshopOutputDto>>.Ok(output, "Workshops listados com sucesso."));
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<WorkshopOutputDto>> GetByIdAsync([FromRoute] int id)
+        [ProducesResponseType(typeof(ApiResponse<WorkshopOutputDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<WorkshopOutputDto>>> GetByIdAsync([FromRoute] int id)
         {
             var output = await getWorkshopByIdUseCase.ExecuteAsync(new GetWorkshopByIdInputDto { Id = id });
             if (output is null)
             {
-                return NotFound();
+                return NoContent();
             }
 
-            return Ok(output);
+            return Ok(ApiResponse<WorkshopOutputDto>.Ok(output, "Workshop encontrado com sucesso."));
         }
 
         [HttpPost]
-        public async Task<ActionResult<WorkshopOutputDto>> CreateAsync([FromBody] CreateWorkshopInputDto input)
+        [ProducesResponseType(typeof(ApiResponse<WorkshopOutputDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<WorkshopOutputDto>>> CreateAsync([FromBody] CreateWorkshopInputDto input)
         {
             var output = await createWorkshopUseCase.ExecuteAsync(input);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = output.Id }, output);
+            return CreatedAtAction(
+                nameof(GetByIdAsync),
+                new { id = output.Id },
+                ApiResponse<WorkshopOutputDto>.Ok(output, "Workshop criado com sucesso."));
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<WorkshopOutputDto>> UpdateAsync([FromRoute] int id, [FromBody] UpdateWorkshopInputDto input)
+        [ProducesResponseType(typeof(ApiResponse<WorkshopOutputDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<WorkshopOutputDto>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<WorkshopOutputDto>>> UpdateAsync([FromRoute] int id, [FromBody] UpdateWorkshopInputDto input)
         {
             var output = await updateWorkshopUseCase.ExecuteAsync(new UpdateWorkshopInputDto
             {
@@ -56,22 +78,25 @@ namespace DesafioFastBackend.API.Controllers
 
             if (output is null)
             {
-                return NotFound();
+                return NotFound(ApiResponse<WorkshopOutputDto>.Fail("Workshop não encontrado."));
             }
 
-            return Ok(output);
+            return Ok(ApiResponse<WorkshopOutputDto>.Ok(output, "Workshop atualizado com sucesso."));
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<object>>> DeleteAsync([FromRoute] int id)
         {
             var deleted = await deleteWorkshopUseCase.ExecuteAsync(new DeleteWorkshopInputDto { Id = id });
             if (!deleted)
             {
-                return NotFound();
+                return NotFound(ApiResponse<object>.Fail("Workshop não encontrado."));
             }
 
-            return NoContent();
+            return Ok(ApiResponse<object>.Ok(null, "Workshop removido com sucesso."));
         }
     }
 }

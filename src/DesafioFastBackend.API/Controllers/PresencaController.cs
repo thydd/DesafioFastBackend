@@ -4,6 +4,7 @@ using DesafioFastBackend.Application.UseCases.Presencas.Dtos;
 using DesafioFastBackend.Application.UseCases.Presencas.GetById;
 using DesafioFastBackend.Application.UseCases.Presencas.List;
 using DesafioFastBackend.Application.UseCases.Presencas.Update;
+using DesafioFastBackend.API.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DesafioFastBackend.API.Controllers
@@ -18,14 +19,25 @@ namespace DesafioFastBackend.API.Controllers
         IDeletePresencaUseCase deletePresencaUseCase) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PresencaOutputDto>>> GetAllAsync()
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<PresencaOutputDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<IEnumerable<PresencaOutputDto>>>> GetAllAsync()
         {
             var output = await listPresencasUseCase.ExecuteAsync(new ListPresencasInputDto());
-            return Ok(output);
+            if (!output.Any())
+            {
+                return NoContent();
+            }
+
+            return Ok(ApiResponse<IEnumerable<PresencaOutputDto>>.Ok(output, "Presenças listadas com sucesso."));
         }
 
         [HttpGet("{workshopId:int}/{colaboradorId:int}")]
-        public async Task<ActionResult<PresencaOutputDto>> GetByIdAsync([FromRoute] int workshopId, [FromRoute] int colaboradorId)
+        [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<PresencaOutputDto>>> GetByIdAsync([FromRoute] int workshopId, [FromRoute] int colaboradorId)
         {
             var output = await getPresencaByIdUseCase.ExecuteAsync(new GetPresencaByIdInputDto
             {
@@ -35,21 +47,32 @@ namespace DesafioFastBackend.API.Controllers
 
             if (output is null)
             {
-                return NotFound();
+                return NoContent();
             }
 
-            return Ok(output);
+            return Ok(ApiResponse<PresencaOutputDto>.Ok(output, "Presença encontrada com sucesso."));
         }
 
         [HttpPost]
-        public async Task<ActionResult<PresencaOutputDto>> CreateAsync([FromBody] CreatePresencaInputDto input)
+        [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<PresencaOutputDto>>> CreateAsync([FromBody] CreatePresencaInputDto input)
         {
             var output = await createPresencaUseCase.ExecuteAsync(input);
-            return CreatedAtAction(nameof(GetByIdAsync), new { workshopId = output.WorkshopId, colaboradorId = output.ColaboradorId }, output);
+            return CreatedAtAction(
+                nameof(GetByIdAsync),
+                new { workshopId = output.WorkshopId, colaboradorId = output.ColaboradorId },
+                ApiResponse<PresencaOutputDto>.Ok(output, "Presença criada com sucesso."));
         }
 
         [HttpPut("{workshopId:int}/{colaboradorId:int}")]
-        public async Task<ActionResult<PresencaOutputDto>> UpdateAsync([FromRoute] int workshopId, [FromRoute] int colaboradorId, [FromBody] UpdatePresencaInputDto input)
+        [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<PresencaOutputDto>>> UpdateAsync([FromRoute] int workshopId, [FromRoute] int colaboradorId, [FromBody] UpdatePresencaInputDto input)
         {
             var output = await updatePresencaUseCase.ExecuteAsync(new UpdatePresencaInputDto
             {
@@ -61,14 +84,17 @@ namespace DesafioFastBackend.API.Controllers
 
             if (output is null)
             {
-                return NotFound();
+                return NotFound(ApiResponse<PresencaOutputDto>.Fail("Presença não encontrada."));
             }
 
-            return Ok(output);
+            return Ok(ApiResponse<PresencaOutputDto>.Ok(output, "Presença atualizada com sucesso."));
         }
 
         [HttpDelete("{workshopId:int}/{colaboradorId:int}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int workshopId, [FromRoute] int colaboradorId)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<object>>> DeleteAsync([FromRoute] int workshopId, [FromRoute] int colaboradorId)
         {
             var deleted = await deletePresencaUseCase.ExecuteAsync(new DeletePresencaInputDto
             {
@@ -78,10 +104,10 @@ namespace DesafioFastBackend.API.Controllers
 
             if (!deleted)
             {
-                return NotFound();
+                return NotFound(ApiResponse<object>.Fail("Presença não encontrada."));
             }
 
-            return NoContent();
+            return Ok(ApiResponse<object>.Ok(null, "Presença removida com sucesso."));
         }
     }
 }

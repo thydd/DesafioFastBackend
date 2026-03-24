@@ -18,3 +18,6 @@
 
 ## Controller General Rules
 - Evitar uso de try/catch no controller; tratar fluxo sem blocos de captura no controller.
+
+## Exceptions General Rules
+- So crie uma nova exeção, se realmente for uma exeção. Retornos nulos, não são exceptions, eles ja são esperados/corriqueiros.

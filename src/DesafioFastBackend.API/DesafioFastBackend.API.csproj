@@ -20,8 +20,4 @@
     <ProjectReference Include="..\DesafioFastBackend.Infrastructure\DesafioFastBackend.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Middleware\" />
-  </ItemGroup>
-
 </Project>

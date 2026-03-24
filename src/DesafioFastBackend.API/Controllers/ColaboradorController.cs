@@ -5,6 +5,7 @@ using DesafioFastBackend.Application.UseCases.Colaboradores.Dtos;
 using DesafioFastBackend.Application.UseCases.Colaboradores.GetById;
 using DesafioFastBackend.Application.UseCases.Colaboradores.List;
 using DesafioFastBackend.Application.UseCases.Colaboradores.Update;
+using DesafioFastBackend.API.Contracts;
 
 namespace DesafioFastBackend.API.Controllers
 {
@@ -18,33 +19,54 @@ namespace DesafioFastBackend.API.Controllers
         IDeleteColaboradorUseCase deleteColaboradorUseCase) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ColaboradorOutputDto>>> GetAllAsync()
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<ColaboradorOutputDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<IEnumerable<ColaboradorOutputDto>>>> GetAllAsync()
         {
             var output = await listColaboradoresUseCase.ExecuteAsync(new ListColaboradoresInputDto());
-            return Ok(output);
+            if (!output.Any())
+            {
+                return NoContent();
+            }
+
+            return Ok(ApiResponse<IEnumerable<ColaboradorOutputDto>>.Ok(output, "Colaboradores listados com sucesso."));
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ColaboradorOutputDto>> GetByIdAsync([FromRoute] int id)
+        [ProducesResponseType(typeof(ApiResponse<ColaboradorOutputDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<ColaboradorOutputDto>>> GetByIdAsync([FromRoute] int id)
         {
             var output = await getColaboradorByIdUseCase.ExecuteAsync(new GetColaboradorByIdInputDto { Id = id });
             if (output is null)
             {
-                return NotFound();
+                return NoContent();
             }
 
-            return Ok(output);
+            return Ok(ApiResponse<ColaboradorOutputDto>.Ok(output, "Colaborador encontrado com sucesso."));
         }
 
         [HttpPost]
-        public async Task<ActionResult<ColaboradorOutputDto>> CreateAsync([FromBody] CreateColaboradorInputDto input)
+        [ProducesResponseType(typeof(ApiResponse<ColaboradorOutputDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<ColaboradorOutputDto>>> CreateAsync([FromBody] CreateColaboradorInputDto input)
         {
             var output = await createColaboradorUseCase.ExecuteAsync(input);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = output.Id }, output);
+            return CreatedAtAction(
+                nameof(GetByIdAsync),
+                new { id = output.Id },
+                ApiResponse<ColaboradorOutputDto>.Ok(output, "Colaborador criado com sucesso."));
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<ColaboradorOutputDto>> UpdateAsync([FromRoute] int id, [FromBody] UpdateColaboradorInputDto input)
+        [ProducesResponseType(typeof(ApiResponse<ColaboradorOutputDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<ColaboradorOutputDto>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<ColaboradorOutputDto>>> UpdateAsync([FromRoute] int id, [FromBody] UpdateColaboradorInputDto input)
         {
             var output = await updateColaboradorUseCase.ExecuteAsync(new UpdateColaboradorInputDto
             {
@@ -54,22 +76,25 @@ namespace DesafioFastBackend.API.Controllers
 
             if (output is null)
             {
-                return NotFound();
+                return NotFound(ApiResponse<ColaboradorOutputDto>.Fail("Colaborador não encontrado."));
             }
 
-            return Ok(output);
+            return Ok(ApiResponse<ColaboradorOutputDto>.Ok(output, "Colaborador atualizado com sucesso."));
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<object>>> DeleteAsync([FromRoute] int id)
         {
             var deleted = await deleteColaboradorUseCase.ExecuteAsync(new DeleteColaboradorInputDto { Id = id });
             if (!deleted)
             {
-                return NotFound();
+                return NotFound(ApiResponse<object>.Fail("Colaborador não encontrado."));
             }
 
-            return NoContent();
+            return Ok(ApiResponse<object>.Ok(null, "Colaborador removido com sucesso."));
         }
     }
 }

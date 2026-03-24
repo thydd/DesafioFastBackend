@@ -1,5 +1,6 @@
 using DesafioFastBackend.Application;
 using DesafioFastBackend.Infrastructure;
+using DesafioFastBackend.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
