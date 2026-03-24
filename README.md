@@ -87,6 +87,9 @@ Aplicação:
 - `GET`: `ReadAccess`
 - `POST/PUT/DELETE`: `WriteAccess`
 
+Configuração atual do token:
+- Expiração: `180` minutos (`3` horas)
+
 ---
 
 ## 4. Padrão de resposta da API
@@ -160,6 +163,7 @@ Valores sensíveis **não** devem ficar em `appsettings` versionado.
 dotnet user-secrets set "ConnectionStrings:Default" "Server=...;Database=...;..." --project src/DesafioFastBackend.API
 
 dotnet user-secrets set "Jwt:Key" "SUA_CHAVE_FORTE_AQUI" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Jwt:ExpiresInMinutes" "180" --project src/DesafioFastBackend.API
 
 dotnet user-secrets set "Auth:Users:0:Username" "admin" --project src/DesafioFastBackend.API
 dotnet user-secrets set "Auth:Users:0:Password" "admin123" --project src/DesafioFastBackend.API

@@ -17,7 +17,7 @@ public class JwtTokenService(IConfiguration configuration) : ITokenService
         var keyValue = configuration["Jwt:Key"];
         var expiresInMinutes = int.TryParse(configuration["Jwt:ExpiresInMinutes"], out var parsedExpiresInMinutes)
             ? parsedExpiresInMinutes
-            : 60;
+            : 180;
 
         if (string.IsNullOrWhiteSpace(keyValue))
         {
