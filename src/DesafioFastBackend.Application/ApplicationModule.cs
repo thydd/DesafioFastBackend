@@ -17,6 +17,8 @@ using DesafioFastBackend.Application.UseCases.Presencas.Dtos;
 using DesafioFastBackend.Application.UseCases.Presencas.GetById;
 using DesafioFastBackend.Application.UseCases.Presencas.List;
 using DesafioFastBackend.Application.UseCases.Presencas.Update;
+using DesafioFastBackend.Application.UseCases.Auth.Login;
+using DesafioFastBackend.Application.UseCases.Auth.Login.Dtos;
 using FluentValidation;
 
 namespace DesafioFastBackend.Application;
@@ -40,6 +42,7 @@ public static class ApplicationModule
         services.AddScoped<IValidator<GetPresencaByIdInputDto>, GetPresencaByIdValidator>();
         services.AddScoped<IValidator<ListPresencasInputDto>, ListPresencasValidator>();
         services.AddScoped<IValidator<UpdatePresencaInputDto>, UpdatePresencaValidator>();
+        services.AddScoped<IValidator<LoginInputDto>, LoginValidator>();
 
         services.AddScoped<ICreateColaboradorUseCase, CreateColaboradorUseCase>();
         services.AddScoped<IDeleteColaboradorUseCase, DeleteColaboradorUseCase>();
@@ -56,6 +59,7 @@ public static class ApplicationModule
         services.AddScoped<IGetPresencaByIdUseCase, GetPresencaByIdUseCase>();
         services.AddScoped<IListPresencasUseCase, ListPresencasUseCase>();
         services.AddScoped<IUpdatePresencaUseCase, UpdatePresencaUseCase>();
+        services.AddScoped<ILoginUseCase, LoginUseCase>();
 
         return services;
     }

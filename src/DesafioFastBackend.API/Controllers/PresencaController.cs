@@ -5,6 +5,7 @@ using DesafioFastBackend.Application.UseCases.Presencas.GetById;
 using DesafioFastBackend.Application.UseCases.Presencas.List;
 using DesafioFastBackend.Application.UseCases.Presencas.Update;
 using DesafioFastBackend.API.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DesafioFastBackend.API.Controllers
@@ -19,6 +20,7 @@ namespace DesafioFastBackend.API.Controllers
         IDeletePresencaUseCase deletePresencaUseCase) : ControllerBase
     {
         [HttpGet]
+        [Authorize(Policy = "ReadAccess")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<PresencaOutputDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
@@ -34,6 +36,7 @@ namespace DesafioFastBackend.API.Controllers
         }
 
         [HttpGet("{workshopId:int}/{colaboradorId:int}")]
+        [Authorize(Policy = "ReadAccess")]
         [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
@@ -54,6 +57,7 @@ namespace DesafioFastBackend.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "WriteAccess")]
         [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status409Conflict)]
@@ -68,6 +72,7 @@ namespace DesafioFastBackend.API.Controllers
         }
 
         [HttpPut("{workshopId:int}/{colaboradorId:int}")]
+        [Authorize(Policy = "WriteAccess")]
         [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<PresencaOutputDto>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -91,6 +96,7 @@ namespace DesafioFastBackend.API.Controllers
         }
 
         [HttpDelete("{workshopId:int}/{colaboradorId:int}")]
+        [Authorize(Policy = "WriteAccess")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]

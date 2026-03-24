@@ -2,6 +2,7 @@
 
 ## Project Guidelines
 - Projeto DesafioFastBackend: implementar API REST em C# com CRUD completo para endpoints /api/workshops e /api/colaboradores. Entidades: Colaborador (int Id, string Nome) e Workshop (id, nome, data de realização, descrição). Bônus opcionais: persistência em banco relacional (MySQL/SQL Server), autenticação/autorização e documentação com Swagger.
+- O projeto deve usar User Secrets para armazenar dados sensíveis (ex.: chaves JWT e credenciais), evitando manter esses valores em appsettings versionado.
 
 ## Code General Rules
 - Sempre usar Async para operações de I/O e sufixo Async nos métodos assíncronos neste projeto.
