@@ -136,8 +136,25 @@ Mapeamento global de erro:
 ## 5. Regra de negócio importante (Presença)
 
 No cadastro/atualização de presença:
-- `DataHoraCheckIn` deve estar entre `16:00` e `17:00`.
+- `DataHoraCheckIn` deve estar entre `16:00` e `17:00` (referência de fuso: `America/Sao_Paulo`).
 - Presença duplicada (`workshopId + colaboradorId`) gera conflito (`409`).
+
+## 5.1 Observação de contrato (Workshop)
+
+Para `POST/PUT` de workshop, o backend usa `DataRealizacao` como campo principal.
+
+Por compatibilidade com integrações existentes, também aceita aliases no JSON:
+- `dataHora`
+- `dataHoraRealizacao`
+
+Exemplo válido:
+```json
+{
+  "nome": "Introdução a Angular",
+  "descricao": "Fundamentos de componentes",
+  "dataRealizacao": "2026-01-15T16:00:00"
+}
+```
 
 ---
 
