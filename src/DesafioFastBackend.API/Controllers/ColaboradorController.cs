@@ -59,9 +59,8 @@ namespace DesafioFastBackend.API.Controllers
         public async Task<ActionResult<ApiResponse<ColaboradorOutputDto>>> CreateAsync([FromBody] CreateColaboradorInputDto input)
         {
             var output = await createColaboradorUseCase.ExecuteAsync(input);
-            return CreatedAtAction(
-                nameof(GetByIdAsync),
-                new { id = output.Id },
+            return StatusCode(
+                StatusCodes.Status201Created,
                 ApiResponse<ColaboradorOutputDto>.Ok(output, "Colaborador criado com sucesso."));
         }
 

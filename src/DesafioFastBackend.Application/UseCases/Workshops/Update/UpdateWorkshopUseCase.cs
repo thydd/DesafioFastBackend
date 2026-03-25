@@ -18,7 +18,7 @@ public class UpdateWorkshopUseCase(
             Id = input.Id,
             Nome = input.Nome.Trim(),
             Descricao = input.Descricao.Trim(),
-            DataRealizacao = input.DataRealizacao
+            DataRealizacao = NormalizeBusinessDateTime(input.DataRealizacao)
         };
 
         var updated = await repository.UpdateAsync(entity);
@@ -34,5 +34,10 @@ public class UpdateWorkshopUseCase(
             Descricao = updated.Descricao,
             DataRealizacao = updated.DataRealizacao
         };
+    }
+
+    private static DateTime NormalizeBusinessDateTime(DateTime value)
+    {
+        return DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
     }
 }

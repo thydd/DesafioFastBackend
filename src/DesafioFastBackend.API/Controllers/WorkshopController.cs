@@ -59,9 +59,8 @@ namespace DesafioFastBackend.API.Controllers
         public async Task<ActionResult<ApiResponse<WorkshopOutputDto>>> CreateAsync([FromBody] CreateWorkshopInputDto input)
         {
             var output = await createWorkshopUseCase.ExecuteAsync(input);
-            return CreatedAtAction(
-                nameof(GetByIdAsync),
-                new { id = output.Id },
+            return StatusCode(
+                StatusCodes.Status201Created,
                 ApiResponse<WorkshopOutputDto>.Ok(output, "Workshop criado com sucesso."));
         }
 

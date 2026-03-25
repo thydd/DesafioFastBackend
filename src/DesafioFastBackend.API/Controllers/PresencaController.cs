@@ -65,9 +65,8 @@ namespace DesafioFastBackend.API.Controllers
         public async Task<ActionResult<ApiResponse<PresencaOutputDto>>> CreateAsync([FromBody] CreatePresencaInputDto input)
         {
             var output = await createPresencaUseCase.ExecuteAsync(input);
-            return CreatedAtAction(
-                nameof(GetByIdAsync),
-                new { workshopId = output.WorkshopId, colaboradorId = output.ColaboradorId },
+            return StatusCode(
+                StatusCodes.Status201Created,
                 ApiResponse<PresencaOutputDto>.Ok(output, "Presença criada com sucesso."));
         }
 

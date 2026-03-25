@@ -17,7 +17,7 @@ public class CreateWorkshopUseCase(
         {
             Nome = input.Nome.Trim(),
             Descricao = input.Descricao.Trim(),
-            DataRealizacao = input.DataRealizacao
+            DataRealizacao = NormalizeBusinessDateTime(input.DataRealizacao)
         };
 
         var created = await repository.CreateAsync(entity);
@@ -29,5 +29,10 @@ public class CreateWorkshopUseCase(
             Descricao = created.Descricao,
             DataRealizacao = created.DataRealizacao
         };
+    }
+
+    private static DateTime NormalizeBusinessDateTime(DateTime value)
+    {
+        return DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
     }
 }
