@@ -193,49 +193,108 @@ dotnet user-secrets set "Auth:Users:1:Role" "Reader" --project src/DesafioFastBa
 
 ---
 
-## 8. Como executar
+## 8. Como executar (guia para avaliador)
 
-1. Restaurar pacotes:
+### 8.1 Pré-requisitos
+
+Instalar no computador:
+- `.NET SDK 10`
+- `SQL Server` (Express/Developer/LocalDB)
+- `SQL Management studio 22`
+- ferramenta `dotnet-ef`:
+
 ```powershell
+dotnet tool install --global dotnet-ef
+```
+
+Validar instalação do .NET:
+
+```powershell
+dotnet --list-sdks
+```
+
+---
+
+### 8.2 Clonar e restaurar
+
+```powershell
+git clone https://github.com/thydd/DesafioFastBackend.git
+cd DesafioFastBackend
 dotnet restore
 ```
 
-2. Aplicar migrations (se necessário):
+---
+
+### 8.3 Configurar secrets (obrigatório)
+
+> Valores sensíveis devem ficar em User Secrets, não em `appsettings` versionado.
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:Default" "Server=SEU_SERVIDOR;Database=DesafioFastDB;Trusted_Connection=True;TrustServerCertificate=True" --project src/DesafioFastBackend.API
+
+dotnet user-secrets set "Jwt:Issuer" "DesafioFastBackend" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Jwt:Audience" "DesafioFastBackendUsers" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Jwt:Key" "SUA_CHAVE_FORTE_COM_32_OU_MAIS_CARACTERES" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Jwt:ExpiresInMinutes" "180" --project src/DesafioFastBackend.API
+
+dotnet user-secrets set "Auth:Users:0:Username" "admin" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Auth:Users:0:Password" "admin123" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Auth:Users:0:Role" "Admin" --project src/DesafioFastBackend.API
+
+dotnet user-secrets set "Auth:Users:1:Username" "reader" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Auth:Users:1:Password" "reader123" --project src/DesafioFastBackend.API
+dotnet user-secrets set "Auth:Users:1:Role" "Reader" --project src/DesafioFastBackend.API
+```
+
+---
+
+### 8.4 Criar/atualizar banco
+
 ```powershell
 dotnet ef database update --project src/DesafioFastBackend.Infrastructure --startup-project src/DesafioFastBackend.API
 ```
 
-3. Rodar API:
+Executar o script `scripts/seed-desafiofast.sql` no banco `DesafioFastDB`.
+
+---
+
+### 8.5 Rodar API
+
 ```powershell
 dotnet run --project src/DesafioFastBackend.API
 ```
 
-4. Abrir Swagger:
-- `https://localhost:7114/swagger` (perfil HTTPS padrão)
+Ao subir, a API deve exibir URLs como:
+- `https://localhost:7114`
+- `http://localhost:5084`
+
+Swagger:
+- `https://localhost:7114/swagger`
 
 ---
 
-## 9. Integração recomendada no Angular
+### 8.6 Primeiro teste no Swagger
 
-1. Fazer login em `/api/auth/login`.
-2. Guardar `accessToken` (memória/session storage conforme estratégia).
-3. Enviar header em chamadas protegidas:
-   - `Authorization: Bearer <token>`
-4. Tratar status no frontend:
-   - `200/201`: fluxo normal
-   - `204`: tela vazia/lista vazia
-   - `400`: exibir validações
-   - `401`: redirecionar para login
-   - `404`: recurso não encontrado
-   - `409`: conflito de regra de negócio
-   - `500`: erro genérico com fallback
+1. Chamar `POST /api/auth/login` com:
 
-Sugestão: criar `HttpInterceptor` para anexar token automaticamente.
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+2. Copiar `accessToken` da resposta.
+3. Clicar em `Authorize` no Swagger e informar: `Bearer {token}`.
+4. Testar endpoints protegidos (`workshops`, `colaboradores`, `presencas`).
 
 ---
 
-## 10. Observações finais
+### 8.7 Troubleshooting rápido
 
-- Swagger já está com esquema `Bearer` configurado.
-- O projeto usa políticas por role, facilitando evolução futura (novos perfis/permissões).
-- Para produção, use senha com hash e gestão de identidade robusta (ex.: Identity + refresh token + rotação de chave).
+- Erro de conexão com banco: revisar `ConnectionStrings:Default` e serviço do SQL Server.
+- Erro de JWT key: revisar `Jwt:Key` nos secrets.
+- Falha ao rodar migration: confirmar instalação do `dotnet-ef` e versão do SDK .NET.
+
+
+
